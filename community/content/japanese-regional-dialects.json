@@ -90,5 +90,12 @@
   "english": "What are you talking about?!",
   "region": "Kansai",
   "note": "Classic comedic retort (tsukkomi). (Set 5)"
+},
+{
+  "dialect": "しばれる",
+  "standardJapanese": "とても寒い",
+  "english": "freezing cold",
+  "region": "Hokkaido",
+  "note": "Used for severe winter cold. (Set 3)"
 }
 ]
