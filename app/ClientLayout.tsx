@@ -1,12 +1,13 @@
 'use client';
 import clsx from 'clsx';
-import { useState, useEffect, startTransition, useMemo } from 'react';
+import { useState, useEffect, startTransition, useMemo, useRef } from 'react';
 import usePreferencesStore from '@/features/Preferences/store/usePreferencesStore';
 import { useCrazyMode } from '@/features/CrazyMode';
 import { useShallow } from 'zustand/react/shallow';
 import { usePathname } from 'next/navigation';
 import { ScrollRestoration } from 'next-scroll-restoration';
 import WelcomeModal from '@/shared/components/Modals/WelcomeModal';
+import { DonationModal } from '@/features/Preferences';
 import {
   AchievementNotificationContainer,
   AchievementIntegration,
@@ -89,6 +90,8 @@ export default function ClientLayout({
 
   // 3. Create state to hold the fonts module
   const [fontsModule, setFontsModule] = useState<FontObject[] | null>(null);
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const previousPathnameRef = useRef<string | null>(null);
 
   // Memoize fontClassName calculation to prevent recalculation on every render (5-10ms savings)
   const fontClassName = useMemo(() => {
@@ -98,6 +101,65 @@ export default function ClientLayout({
         ?.font.className || ''
     );
   }, [fontsModule, effectiveFont]);
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const isDev = process.env.NODE_ENV === 'development';
+    const isPreviewDeployment =
+      process.env.NODE_ENV === 'production' &&
+      process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production';
+    const isTargetRoute = /\/(kana|kanji|vocabulary)(\/|$)/.test(pathname);
+    const isPreferencesRoute = /\/preferences(\/|$)/.test(pathname);
+    const isBaseRoute = pathname === '/' || pathname === '/en' || pathname === '/ja';
+    const donationSessionKey = 'donation-modal-seen';
+    const donationEligibleKey = 'donation-modal-eligible';
+    const previousPathname = previousPathnameRef.current;
+
+    if (isBaseRoute) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(donationEligibleKey);
+      }
+      setIsDonationModalOpen(false);
+      previousPathnameRef.current = pathname;
+      return;
+    }
+
+    if (isTargetRoute && previousPathname && (previousPathname === '/' || previousPathname === '/en' || previousPathname === '/ja')) {
+      if (
+        typeof window !== 'undefined' &&
+        sessionStorage.getItem(donationEligibleKey) !== 'true'
+      ) {
+        sessionStorage.setItem(donationEligibleKey, 'true');
+      }
+    }
+
+    if ((isDev || isPreviewDeployment) && isPreferencesRoute) {
+      if (
+        typeof window !== 'undefined' &&
+        sessionStorage.getItem(donationSessionKey) !== 'true'
+      ) {
+        sessionStorage.setItem(donationSessionKey, 'true');
+        const timer = setTimeout(() => {
+          setIsDonationModalOpen(true);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      sessionStorage.getItem(donationEligibleKey) === 'true' &&
+      sessionStorage.getItem(donationSessionKey) !== 'true'
+    ) {
+      sessionStorage.setItem(donationSessionKey, 'true');
+      const timer = setTimeout(() => {
+        setIsDonationModalOpen(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    previousPathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     startTransition(() => {
@@ -110,7 +172,6 @@ export default function ClientLayout({
   }, [effectiveTheme]);
 
   // Trigger randomization on page navigation
-  const pathname = usePathname();
   useEffect(() => {
     if (isCrazyMode) {
       randomize();
@@ -210,6 +271,15 @@ export default function ClientLayout({
       {children}
       <ScrollRestoration />
       <WelcomeModal />
+      <DonationModal
+        open={isDonationModalOpen}
+        onOpenChange={open => {
+          setIsDonationModalOpen(open);
+          if (!open && typeof window !== 'undefined') {
+            sessionStorage.setItem('donation-modal-seen', 'true');
+          }
+        }}
+      />
       <AchievementNotificationContainer />
       <AchievementIntegration />
       <BackToTop />

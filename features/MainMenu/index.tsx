@@ -34,8 +34,8 @@ const MainMenu = () => {
 
   const characterTileClassName = clsx(
     'inline-flex h-12 w-12 items-center justify-center rounded-2xl',
-    'bg-(--secondary-color) text-(--background-color)',
-    'border-b-6 border-(--secondary-color-accent)',
+    'bg-(--secondary-color) group-hover:bg-(--main-color) text-(--background-color)',
+    'border-b-8 border-(--secondary-color-accent) group-hover:border-(--main-color-accent)',
     'transition-all duration-200',
     'active:border-b-0 active:translate-y-[6px] active:mb-[6px]',
   );
@@ -260,7 +260,7 @@ const MainMenu = () => {
               <Link
                 href={link.href}
                 prefetch
-                className={clsx('w-full overflow-hidden')}
+                className={clsx('w-full overflow-hidden group')}
               >
                 <button
                   className={clsx(
