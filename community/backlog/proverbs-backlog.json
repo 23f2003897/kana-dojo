@@ -1376,7 +1376,7 @@
     "english": "Failure is the origin of success",
     "meaning": "Mistakes lead to growth",
     "issued": false,
-    "completed": false
+    "completed": true
   },
   {
     "id": 154,
@@ -1385,7 +1385,7 @@
     "english": "A bee on a crying face",
     "meaning": "Misfortune piles up",
     "completed": false,
-    "issued": false
+    "issued": true
   },
   {
     "id": 155,
