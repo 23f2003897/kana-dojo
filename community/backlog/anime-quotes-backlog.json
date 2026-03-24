@@ -927,7 +927,7 @@
     "anime": "Sailor Moon",
     "character": "Usagi Tsukino",
     "issued": false,
-    "completed": false
+    "completed": true
   },
   {
     "id": 94,
@@ -936,7 +936,7 @@
     "english": "I'm just a hero for fun. (alt wording 42)",
     "anime": "One Punch Man",
     "character": "Saitama",
-    "issued": false,
+    "issued": true,
     "completed": false
   },
   {
