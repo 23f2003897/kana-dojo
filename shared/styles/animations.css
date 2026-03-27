@@ -41,7 +41,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  @theme {
-    --animate-float: none;
+  .animate-float,
+  .motion-safe\:animate-float {
+    animation: none !important;
+    transform: none !important;
   }
 }
